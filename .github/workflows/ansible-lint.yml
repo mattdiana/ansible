@@ -11,7 +11,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Lint Ansible Playbook
-        uses: ansible/ansible-lint-action@v4.1.0
+        uses: ansible/ansible-lint-action@c37fb7b
         with:
           targets: "./"
           args: "-q"
