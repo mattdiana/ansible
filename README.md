@@ -2,6 +2,8 @@
 
 Ansible configuration for the Connected House.
 
+[![Ansible Lint](https://github.com/connected-house/ansible/actions/workflows/ansible-lint.yml/badge.svg)](https://github.com/connected-house/ansible/actions/workflows/ansible-lint.yml)
+
 - [Installation](#installation)
   * [Git](#git)
   * [Secrets](#secrets)
