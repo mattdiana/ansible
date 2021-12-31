@@ -1,0 +1,8 @@
+---
+- name: Configure the basic server essentials & security
+  hosts: all
+  roles:
+    - base
+    - ssh
+    - users
+    - docker

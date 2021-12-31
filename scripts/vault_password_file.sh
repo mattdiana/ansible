@@ -1,7 +1,3 @@
 #!/bin/zsh
 
-LABEL="ansible-vault-password"
-
-ACCOUNT_NAME="connected-house"
-
-/usr/bin/security find-generic-password -w -a "$ACCOUNT_NAME" -l "$LABEL"
+bw get password "4e2026ad-abd2-49ab-ad19-a82e13903096"

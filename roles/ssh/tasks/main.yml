@@ -1,0 +1,76 @@
+---
+- name: Configure SSH
+  become: true
+  block:
+    - name: Prevent root login via SSH
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: "^PermitRootLogin"
+        line: PermitRootLogin no
+      notify: "restart ssh"
+
+    - name: Disable SSH password login
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: "^PasswordAuthentication"
+        line: PasswordAuthentication no
+      notify: "restart ssh"
+
+    - name: Disable SSH challenge response login
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: "^ChallengeResponseAuthentication"
+        line: ChallengeResponseAuthentication no
+      notify: "restart ssh"
+
+    - name: Restrict allowed SSH users
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^(AllowUsers(?!.*\bansible\b).*)$'
+        line: '\1 ansible'
+        backrefs: true
+      notify: "restart ssh"
+
+    - name: Disable X11 forwarding
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: "^X11Forwarding"
+        line: X11Forwarding no
+      notify: "restart ssh"
+
+    - name: Enable the RSA and ED25519 keys
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^\#HostKey /etc/ssh/ssh_host_\(rsa\|ed25519\)_key'
+        line: 'HostKey /etc/ssh/ssh_host_\1_key'
+        backrefs: true
+      notify: "restart ssh"
+
+    - name: Add sshaudit.com hardening parameters
+      copy:
+        src: ssh-audit_hardening.conf
+        dest: /etc/ssh/sshd_config.d/ssh-audit_hardening.conf
+        owner: root
+        group: root
+        mode: "0644"
+      notify: "restart ssh"
+
+    - name: Remove authorized keys from root
+      file:
+        path: /root/.ssh/authorized_keys
+        state: absent
+
+    - name: Enable firewall and allow SSH access
+      ufw:
+        rule: allow
+        name: OpenSSH
+        state: enabled
+
+    - name: Install fail2ban
+      become: true
+      import_role:
+        name: oefenweb.fail2ban
+      vars:
+        fail2ban_services:
+          - name: sshd
+            port: 22

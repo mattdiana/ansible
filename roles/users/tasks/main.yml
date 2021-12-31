@@ -1,0 +1,31 @@
+---
+- name: Configure user privileges
+  become: true
+  block:
+    - name: Enable sudo group to escalate without password
+      lineinfile:
+        path: /etc/sudoers
+        state: present
+        regexp: "^%sudo"
+        line: "%sudo ALL=(ALL) NOPASSWD: ALL"
+        validate: /usr/sbin/visudo -cf %s
+
+    - name: Add ansible user to sudo group
+      user:
+        name: "{{ remote_user }}"
+        groups: sudo
+        append: true
+
+    - name: Remove ansible user sudo privileges
+      lineinfile:
+        path: /etc/sudoers
+        state: absent
+        regexp: "^{{ remote_user }}"
+        validate: "/usr/sbin/visudo -cf %s"
+
+    - name: Add authorized keys
+      ansible.posix.authorized_key:
+        user: "{{ remote_user }}"
+        state: present
+        key: "{{ item }}"
+      with_items: '{{ admin_ssh_keys.join("\n") }}'

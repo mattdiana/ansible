@@ -1,0 +1,57 @@
+---
+- name: Upgrade the OS and packages
+  become: true
+  block:
+    - name: Upgrade the OS (apt-get dist-upgrade)
+      apt:
+        upgrade: dist
+        update_cache: true
+
+    - name: Enable unattended upgrades
+      apt:
+        name: unattended-upgrades
+        state: present
+
+    - name: Update all packages to their latest version
+      apt:
+        name: "*"
+        state: latest
+        autoremove: true
+
+    - name: Install required packages
+      package:
+        name:
+          - vim
+          - ufw
+        state: latest
+        cache_valid_time: 3600
+
+    - name: Install Python dependencies for ansible
+      package:
+        name:
+          - python3
+          - python3-pip
+          - python3-virtualenv
+          - python3-setuptools
+        state: latest
+        cache_valid_time: 3600
+
+    - name: Set a hostname
+      ansible.builtin.hostname:
+        name: "{{ inventory_hostname }}"
+
+    - name: Add hostname to /etc/hosts
+      lineinfile:
+        path: /etc/hosts
+        search_string: "127.0.0.1 {{ inventory_hostname }}"
+        line: "127.0.0.1 {{ inventory_hostname }}"
+        insertafter: "^127.0.0.1"
+
+    - name: Check if a reboot is needed
+      stat:
+        path: /var/run/reboot-required
+      register: reboot_required_file
+
+    - name: Reboot server
+      reboot:
+      when: reboot_required_file.stat.exists
