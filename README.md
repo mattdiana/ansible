@@ -1,6 +1,4 @@
-# Connected House Ansible Configuration
-
-Ansible configuration for the Connected House.
+# Ansible Configuration
 
 [![Ansible Lint](https://github.com/mattdiana/ansible/actions/workflows/ansible-lint.yml/badge.svg)](https://github.com/mattdiana/ansible/actions/workflows/ansible-lint.yml)
 
