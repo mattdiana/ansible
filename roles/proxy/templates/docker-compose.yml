@@ -1,0 +1,68 @@
+# {{ ansible_managed | comment(decoration="# ") }}
+---
+version: "2.4"
+
+networks:
+  docker-socket-proxy:
+    internal: true
+  {{ proxy_traefik_network}}:
+    external: true
+
+services:
+  traefik:
+    image: {{ proxy_traefik_docker_image }}
+    restart: unless-stopped
+    container_name: traefik
+    command:
+      - "--accesslog={{ "true" if proxy_traefik_access_log else "false" }}"
+      - "--api.dashboard={{ "true" if proxy_traefik_dashboard_host else "false" }}"
+      - "--providers.docker=true"
+      - "--providers.docker.network={{ proxy_traefik_network }}"
+      - "--providers.docker.endpoint=tcp://docker-socket-proxy:2375"
+      - "--providers.docker.exposedByDefault=false"
+{% for command in proxy_traefik_command %}
+      - "{{ command }}"
+{% endfor %}
+    labels:
+      traefik.enable: "true"
+      traefik.http.middlewares.redirect-to-https.redirectscheme.scheme: https
+      traefik.http.middlewares.redirect-to-https.redirectscheme.permanent: true
+{% if proxy_traefik_dashboard_host and proxy_traefik_dashboard_entrypoint %}
+      traefik.http.routers.{{ proxy_traefik_dashboard_router_name }}.rule: "Host(`{{ proxy_traefik_dashboard_host }}`) && (PathPrefix(`/api`) || PathPrefix(`/dashboard`) || Path(`/`))"
+      traefik.http.routers.{{ proxy_traefik_dashboard_router_name }}.service: "api@internal"
+      traefik.http.routers.{{ proxy_traefik_dashboard_router_name }}.middlewares: "dashboard-root-redirect,append-trailing-slash"
+      traefik.http.routers.{{ proxy_traefik_dashboard_router_name }}.entrypoints: "{{ proxy_traefik_dashboard_entrypoint }}"
+      traefik.http.middlewares.append-trailing-slash.redirectregex.regex: ^(https?://[^/]+/dashboard)$$
+      traefik.http.middlewares.append-trailing-slash.redirectregex.replacement: $${1}/
+      traefik.http.middlewares.append-trailing-slash.redirectregex.permanent: true
+      traefik.http.middlewares.dashboard-root-redirect.redirectregex.regex: ^(https?://[^/]+/)$$
+      traefik.http.middlewares.dashboard-root-redirect.redirectregex.replacement: $${1}dashboard/
+      traefik.http.middlewares.dashboard-root-redirect.redirectregex.permanent: true
+{% endif %}
+{% for label in proxy_traefik_labels %}
+      {{ label }}
+{% endfor %}
+    volumes:
+      - "{{ data_dir }}/traefik:/letsencrypt"
+    ports:
+{% for port in proxy_traefik_ports %}
+      - {{ port }}
+{% endfor %}
+    dns: 1.1.1.1
+    networks:
+      - "{{ proxy_traefik_network }}"
+      - "docker-socket-proxy"
+
+  docker-socket-proxy:
+    image: tecnativa/docker-socket-proxy:0.1.1
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      CONTAINERS: 1
+      SERVICES: 1
+      NODES: 1
+      NETWORKS: 1
+      TASKS: 1
+      VERSION: 1
+    networks:
+      - "docker-socket-proxy"
