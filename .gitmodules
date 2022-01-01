@@ -1,3 +1,6 @@
 [submodule "inventory"]
 	path = inventory
 	url = https://github.com/mattdiana/ansible-inventory
+[submodule "playbooks"]
+	path = playbooks
+	url = git@github.com:mattdiana/ansible-playbooks.git
