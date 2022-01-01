@@ -61,7 +61,7 @@
         state: absent
 
     - name: Enable firewall and allow SSH access
-      ufw:
+      community.general.ufw:
         rule: allow
         name: OpenSSH
         state: enabled

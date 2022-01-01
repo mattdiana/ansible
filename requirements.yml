@@ -1,1 +1,5 @@
-- name: oefenweb.fail2ban
+collections:
+  - name: community.general
+
+roles:
+  - name: oefenweb.fail2ban

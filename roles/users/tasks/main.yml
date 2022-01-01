@@ -27,5 +27,5 @@
       ansible.posix.authorized_key:
         user: "{{ remote_user }}"
         state: present
-        key: "{{ item }}"
-      with_items: '{{ admin_ssh_keys.join("\n") }}'
+        key: "{{ admin_ssh_keys | join(\"\n\") }}"
+        exclusive: true

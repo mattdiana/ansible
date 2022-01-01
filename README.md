@@ -2,11 +2,7 @@
 
 [![Ansible Lint](https://github.com/mattdiana/ansible/actions/workflows/ansible-lint.yml/badge.svg)](https://github.com/mattdiana/ansible/actions/workflows/ansible-lint.yml)
 
-- [Installation](#installation)
-  * [Git](#git)
-  * [Secrets](#secrets)
-  * [Galaxy Requirements](#galaxy-requirements)
-- [License](#license)
+This repository contains the Ansible configuration used by Matt & Diana.
 
 ## Installation
 
@@ -40,7 +36,7 @@ bw login
 By default, Bitwarden will prompt you for your password every time you run Ansible. You may alternatively choose to cache your password for the duration of the session by running:
 
 ```
-export BW_SESSION=$(bw unlock --raw)
+./scripts/password_unlock.sh
 ```
 
 ### Galaxy Requirements
@@ -50,6 +46,20 @@ This repository makes use of collections and roles loaded in from [Ansible Galax
 ```
 ansible-galaxy install -r requirements.yml
 ```
+
+## Usage
+
+### Bootstrapping
+
+One of the benefits of Ansible is that it doesn't require an agent to be run on hosts that you are mananging, but rather relies simply on SSH. So all that's required to manage a host with Ansible is SSH access.
+
+When first creating a host, you can bootstrap it with a privileged user for Ansible using the `bootstrap.yml` playbook:
+
+```
+ansible-playbook playbooks/bootstrap.yml
+```
+
+The host must already be defined in the inventory file. You will be prompted to enter the name of the host and an existing privileged user to log in with.
 
 ## License
 
