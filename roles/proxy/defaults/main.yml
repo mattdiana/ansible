@@ -12,3 +12,4 @@ proxy_traefik_network: proxy
 proxy_traefik_ports:
   - "80:80/tcp"
   - "443:443/tcp"
+proxy_traefik_environment: []

@@ -48,6 +48,10 @@ services:
 {% for port in proxy_traefik_ports %}
       - {{ port }}
 {% endfor %}
+    environment:
+{% for env in proxy_traefik_environment %}
+      - {{ env }}
+{% endfor %}
     dns: 1.1.1.1
     networks:
       - "{{ proxy_traefik_network }}"
