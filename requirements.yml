@@ -3,3 +3,4 @@ collections:
 
 roles:
   - name: oefenweb.fail2ban
+  - name: IronicBadger.ansible_role_proxmox_nag_removal

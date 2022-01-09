@@ -1,0 +1,11 @@
+---
+- name: Configure Proxmox
+  become: true
+  block:
+    - name: Install Proxmox dependencies for ansible
+      pip:
+        name: proxmoxer
+
+    - name: Remove Proxmox subscription nag banner
+      import_role:
+        name: IronicBadger.ansible_role_proxmox_nag_removal
