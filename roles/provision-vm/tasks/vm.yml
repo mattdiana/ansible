@@ -2,8 +2,6 @@
 - name: Provision the VM
   delegate_to: "{{ pve_host }}"
   block:
-    - debug:
-        var: hostvars[pve_host]
     - name: "Clone the template VM on {{ pve_host }}"
       proxmox_kvm:
         proxmox_default_behavior: no_defaults
