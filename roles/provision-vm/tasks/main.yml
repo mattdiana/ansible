@@ -1,0 +1,6 @@
+---
+- name: Provision VM
+  import_tasks: vm.yml
+  when:
+    - pve_vm is defined
+    - pve_host is defined

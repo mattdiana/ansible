@@ -1,0 +1,82 @@
+---
+- name: Provision the VM
+  delegate_to: "{{ pve_host }}"
+  block:
+    - debug:
+        var: hostvars[pve_host]
+    - name: "Clone the template VM on {{ pve_host }}"
+      proxmox_kvm:
+        proxmox_default_behavior: no_defaults
+        name: "{{ pve_vm.name | default(inventory_hostname_short) }}"
+        api_user: "{{ hostvars[pve_host].secret_pve_api_user }}"
+        api_password: "{{ hostvars[pve_host].secret_pve_api_password }}"
+        api_host: localhost
+        clone: "{{ pve_vm.template | default('debian-11') }}-template"
+        full: yes
+        node: "{{ hostvars[pve_host].pve_node_name }}"
+        state: present
+        newid: "{{ pve_vm.vmid }}" # ID for the new VM
+        vmid: "{{ hostvars[pve_host].pve_vm_templates[pve_vm.template | default('debian-11')].vmid }}" # ID for the template being cloned
+
+    - name: Create network interfaces
+      community.general.proxmox_nic:
+        api_user: "{{ hostvars[pve_host].secret_pve_api_user }}"
+        api_password: "{{ hostvars[pve_host].secret_pve_api_password }}"
+        api_host: localhost
+        vmid: "{{ pve_vm.vmid }}"
+        interface: "net{{ index }}"
+        bridge: "{{ netif.bridge }}"
+        tag: "{{ netif.tag | default(omit) }}"
+        firewall: "{{ netif.firewall | default(True) }}"
+      loop: "{{ pve_vm.network }}"
+      loop_control:
+        loop_var: netif
+        index_var: index
+
+    - name: Configure the network interfaces
+      become: yes
+      ansible.builtin.command:
+        cmd: "qm set {{ pve_vm.vmid }} --ipconfig{{ index }} ip={{ netif.ip }}{{ (',gw=' + netif.gw) if netif.gw is defined }}"
+      loop: "{{ pve_vm.network }}"
+      loop_control:
+        loop_var: netif
+        index_var: index
+      when: netif.ip is defined
+
+    - name: Write public key to file
+      become: yes
+      ansible.builtin.copy:
+        content: "{{ hostvars[pve_host].secret_pve_pubkey }}"
+        dest: /root/.ssh/vm.id_rsa.pub
+        mode: "0644"
+
+    - name: Configure the VM settings
+      become: yes
+      ansible.builtin.command:
+        cmd: "qm set {{ pve_vm.vmid }} {{ item }}"
+      loop:
+        - "--memory {{ pve_vm.memory | default(pve_vm_default_memory) }}"
+        - "--cores {{ pve_vm.cores | default(pve_vm_default_cores) }}"
+        - "--sshkeys /root/.ssh/vm.id_rsa.pub"
+        - "--ciuser ansible"
+        - "--onboot {{ '1' if (pve_vm.onboot | default(true)) else '0' }}"
+
+    - name: Resize scsi0 disk
+      become: yes
+      ansible.builtin.command:
+        cmd: "qm resize {{ pve_vm.vmid }} scsi0 {{ pve_vm.disk | default(pve_vm_default_disk) }}G"
+
+    - name: Start the VM
+      proxmox_kvm:
+        proxmox_default_behavior: no_defaults
+        api_user: "{{ hostvars[pve_host].secret_pve_api_user }}"
+        api_password: "{{ hostvars[pve_host].secret_pve_api_password }}"
+        api_host: localhost
+        vmid: "{{ pve_vm.vmid }}"
+        state: started
+      register: start_vm
+
+    - name: Wait 60 seconds for the for the VM to boot
+      pause:
+        seconds: 60
+      when: start_vm.changed
