@@ -4,5 +4,6 @@
     "**/tasks/**/*.yml": "ansible",
     "**/playbooks/*.yml": "ansible",
     "**/docker-compose.yml": "dockercompose"
-  }
+  },
+  "ansible.ansibleLint.arguments": "--offline"
 }

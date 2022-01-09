@@ -32,7 +32,7 @@
 
     - name: Read OS version
       command: lsb_release -cs
-      changed_when: no
+      changed_when: false
       register: os_version
 
     - name: Add Docker apt repository
@@ -54,7 +54,7 @@
         name: "{{ remote_user }}"
         groups:
           - docker
-        append: yes
+        append: true
 
     - name: Install Docker SDK for Python
       pip:
