@@ -1,0 +1,25 @@
+---
+- name: Create storage directory
+  become: yes
+  file:
+    path: "{{ data_path }}"
+    state: directory
+    mode: "0755"
+    owner: "{{ remote_user }}"
+    group: "{{ remote_user }}"
+
+- name: Copy Docker Compose definition file
+  template:
+    src: docker-compose.yml
+    dest: "{{ data_path }}/docker-compose.yml"
+    mode: "0644"
+
+- name: Create Docker network
+  community.docker.docker_network:
+    name: smtp
+
+- name: Start the stack with Docker Compose
+  community.docker.docker_compose:
+    project_src: "{{ data_path }}"
+    pull: true
+    remove_orphans: true

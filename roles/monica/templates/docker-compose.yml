@@ -1,0 +1,52 @@
+# {{ ansible_managed | comment(decoration="# ") }}
+---
+version: "2.4"
+
+networks:
+  {{ monica_proxy_network }}:
+    external: true
+  {{ monica_smtp_network }}:
+    external: true
+  default:
+    internal: true
+
+services:
+  monica:
+    image: "{{ monica_docker_image }}"
+    restart: unless-stopped
+    depends_on:
+      - mysql
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.monica.rule: "Host(`{{ monica_proxy_host }}`)"
+      traefik.http.routers.monica.entrypoints: "{{ monica_proxy_entrypoint }}"
+    environment:
+      - APP_ENV=production
+      - APP_URL=https://{{ monica_proxy_host }}
+      - APP_DISABLE_SIGNUP=true
+      - CHECK_VERSION=false
+      - DB_HOST=mysql
+      - DB_USERNAME={{ monica_mysql_username }}
+      - DB_PASSWORD={{ monica_mysql_password }}
+      - MAIL_HOST={{ monica_mail_host }}
+      - MAIL_PORT=25
+      - MAIL_FROM_ADDRESS={{ monica_mail_from_address }}
+      - MAIL_FROM_NAME=Monica
+    volumes:
+      - "{{ data_dir }}/data:/var/www/html/storage"
+    networks:
+      - "{{ monica_proxy_network }}"
+      - "{{ monica_smtp_network }}"
+      - "default"
+
+  mysql:
+    image: "{{ monica_mysql_docker_image }}"
+    restart: unless-stopped
+    environment:
+      - MYSQL_DATABASE=monica
+      - MYSQL_USER={{ monica_mysql_username }}
+      - MYSQL_PASSWORD={{ monica_mysql_password }}
+    volumes:
+      - "{{ data_dir }}/mysql:/var/lib/mysql"
+    networks:
+      - "default"

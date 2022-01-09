@@ -1,0 +1,14 @@
+---
+data_dir: "{{ app_storage_dir }}/monica"
+
+monica_app_key:
+monica_docker_image: monica:3.5.0
+monica_mail_from_address:
+monica_mail_host: smtp
+monica_mysql_docker_image: mariadb:10.7.1
+monica_mysql_username: monica
+monica_mysql_password: monica
+monica_proxy_host: "monica.{{ domain }}"
+monica_proxy_network: proxy
+monica_proxy_entrypoint:
+monica_smtp_network: smtp
