@@ -14,10 +14,6 @@
     dest: "{{ data_path }}/docker-compose.yml"
     mode: "0644"
 
-- name: Create Docker network
-  community.docker.docker_network:
-    name: smtp
-
 - name: Start the stack with Docker Compose
   community.docker.docker_compose:
     project_src: "{{ data_path }}"

@@ -2,18 +2,14 @@
 ---
 version: "2.4"
 
-networks:
-  smtp:
-    external: true
-
 services:
   smtp:
     build:
-      context: git://github.com/adventurousway/smtp-to-sendgrid-gateway
+      context: https://github.com/adventurousway/smtp-to-sendgrid-gateway.git
     restart: unless-stopped
     container_name: smtp
     environment:
       SENDGRID_API: "{{ sendgrid_api_key }}"
       SMTP_PORT: "25"
-    networks:
-      - smtp
+    ports:
+      - "25:25/tcp"
