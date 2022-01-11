@@ -1,0 +1,14 @@
+---
+data_dir: "{{ app_storage_dir }}/paperless"
+
+paperless_db_password: paperless
+paperless_gid: 1000
+paperless_uid: 1000
+paperless_proxy_entrypoint:
+paperless_proxy_host: "paperless.{{ domain }}"
+paperless_proxy_network: proxy
+paperless_timezone: America/New_York
+paperless_languages: eng lav
+
+# make sure to set this
+# paperless_secret_key: somethingsecretandrandom

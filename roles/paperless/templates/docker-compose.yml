@@ -1,0 +1,80 @@
+# {{ ansible_managed | comment(decoration="# ") }}
+---
+version: "2.4"
+
+networks:
+  "{{ paperless_proxy_network }}":
+    external: true
+  default:
+    internal: true
+
+services:
+  redis:
+    image: redis:6.2.6-alpine
+    restart: unless-stopped
+    networks:
+      - default
+
+  postgres:
+    image: postgres:13.5-alpine
+    restart: unless-stopped
+    volumes:
+      - "{{ data_dir }}/postgres:/var/lib/postgresql/data"
+    environment:
+      POSTGRES_DB: paperless
+      POSTGRES_USER: paperless
+      POSTGRES_PASSWORD: "{{ paperless_db_password }}"
+    networks:
+      - default
+
+  webserver:
+    image: jonaswinkler/paperless-ng:1.5.0
+    restart: unless-stopped
+    depends_on:
+      - postgres
+      - redis
+      - gotenberg
+      - tika
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.paperless.rule: "Host(`{{ paperless_proxy_host }}`)"
+      traefik.http.routers.paperless.entrypoints: "{{ paperless_proxy_entrypoint }}"
+    volumes:
+      - "{{ data_dir }}/data:/usr/src/paperless/data"
+      - "{{ data_dir }}/media:/usr/src/paperless/media"
+      - "{{ data_dir }}/export:/usr/src/paperless/export"
+      - "{{ data_dir }}/consume:/usr/src/paperless/consume"
+    environment:
+      USERMAP_GID: "{{ paperless_gid }}"
+      USERMAP_UID: "{{ paperless_uid }}"
+      PAPERLESS_SECRET_KEY: "{{ paperless_secret_key }}"
+      PAPERLESS_TIME_ZONE: "{{ paperless_timezone }}"
+      PAPERLESS_OCR_LANGUAGES: "{{ paperless_languages }}"
+      PAPERLESS_ALLOWED_HOSTS: "{{ paperless_proxy_host }}"
+      PAPERLESS_CONSUMER_DELETE_DUPLICATES: "true"
+      PAPERLESS_CONSUMER_RECURSIVE: "true"
+      PAPERLESS_CONSUMER_SUBDIRS_AS_TAGS: "true"
+      PAPERLESS_FILENAME_DATE_ORDER: "YMD"
+      PAPERLESS_REDIS: redis://redis:6379
+      PAPERLESS_DBHOST: postgres
+      PAPERLESS_DBPASS: "{{ paperless_db_password }}"
+      PAPERLESS_TIKA_ENABLED: 1
+      PAPERLESS_TIKA_GOTENBERG_ENDPOINT: http://gotenberg:3000
+      PAPERLESS_TIKA_ENDPOINT: http://tika:9998
+    networks:
+      - default
+      - "{{ paperless_proxy_network }}"
+
+  gotenberg:
+    image: gotenberg/gotenberg:7.4.2
+    restart: unless-stopped
+    environment:
+      DISABLE_GOOGLE_CHROME: 1
+    networks:
+      - default
+
+  tika:
+    image: apache/tika:2.2.1
+    restart: unless-stopped
+    networks:
+      - default
