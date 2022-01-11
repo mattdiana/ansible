@@ -3,16 +3,14 @@
 version: "2.4"
 
 networks:
-  {{ monica_proxy_network }}:
-    external: true
-  {{ monica_smtp_network }}:
+  "{{ monica_proxy_network }}":
     external: true
   default:
     internal: true
 
 services:
   monica:
-    image: "{{ monica_docker_image }}"
+    image: monica:3.5.0
     restart: unless-stopped
     depends_on:
       - mysql
@@ -29,14 +27,13 @@ services:
       - DB_USERNAME={{ monica_mysql_username }}
       - DB_PASSWORD={{ monica_mysql_password }}
       - MAIL_HOST={{ monica_mail_host }}
-      - MAIL_PORT=25
+      - MAIL_PORT={{ monica_mail_port }}
       - MAIL_FROM_ADDRESS={{ monica_mail_from_address }}
       - MAIL_FROM_NAME=Monica
     volumes:
       - "{{ data_dir }}/data:/var/www/html/storage"
     networks:
       - "{{ monica_proxy_network }}"
-      - "{{ monica_smtp_network }}"
       - "default"
 
   mysql:
