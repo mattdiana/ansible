@@ -1,0 +1,15 @@
+# {{ ansible_managed | comment(decoration="# ") }}
+---
+version: "2.4"
+
+services:
+  mqtt:
+    image: eclipse-mosquitto:1.6.11
+    restart: unless-stopped
+    ports:
+{% for port in mqtt_docker_ports %}
+      - {{ port }}
+{% endfor %}
+    volumes:
+      - "{{ data_dir }}/config/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro"
+      - "{{ data_dir }}/data:/mosquitto/data"

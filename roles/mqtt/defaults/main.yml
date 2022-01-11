@@ -1,0 +1,4 @@
+---
+data_dir: "{{ app_storage_dir }}/mqtt"
+
+mqtt_docker_ports: []

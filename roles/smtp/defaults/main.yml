@@ -1,2 +1,4 @@
 ---
 data_path: "{{ app_storage_dir }}/smtp"
+
+smtp_docker_ports: []

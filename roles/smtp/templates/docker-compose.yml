@@ -11,4 +11,6 @@ services:
       SENDGRID_API: "{{ sendgrid_api_key }}"
       SMTP_PORT: "25"
     ports:
-      - "25:25/tcp"
+{% for port in smtp_docker_ports %}
+      - {{ port }}
+{% endfor %}
