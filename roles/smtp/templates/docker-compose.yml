@@ -7,7 +7,6 @@ services:
     build:
       context: https://github.com/adventurousway/smtp-to-sendgrid-gateway.git
     restart: unless-stopped
-    container_name: smtp
     environment:
       SENDGRID_API: "{{ sendgrid_api_key }}"
       SMTP_PORT: "25"
