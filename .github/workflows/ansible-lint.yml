@@ -10,8 +10,8 @@ jobs:
       - name: Checkout the repository
         uses: actions/checkout@v2
 
-      - name: Lint Ansible Playbook
-        uses: ansible/ansible-lint-action@c37fb7b4bda2c8cb18f4942716bae9f11b0dc9bc
-        with:
-          targets: "./"
-          args: "-q --offline"
+      # - name: Lint Ansible Playbook
+      #   uses: ansible/ansible-lint-action@c37fb7b4bda2c8cb18f4942716bae9f11b0dc9bc
+      #   with:
+      #     targets: "./"
+      #     args: "-q --offline"
