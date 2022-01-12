@@ -1,0 +1,28 @@
+# {{ ansible_managed | comment(decoration="# ") }}
+---
+version: "2.4"
+
+networks:
+  "{{ adguard_proxy_network }}":
+    external: true
+
+services:
+  adguard:
+    image: adguard/adguardhome:v0.107.2
+    restart: unless-stopped
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.adguard.rule: "Host(`{{ adguard_proxy_host }}`)"
+      traefik.http.routers.adguard.entrypoints: "{{ adguard_proxy_entrypoint }}"
+      traefik.http.services.adguard.loadbalancer.server.port: 80
+    environment:
+      - TZ={{ TZ }}
+    volumes:
+      - "{{ data_dir }}/data:/opt/adguardhome/work"
+      - "{{ data_dir }}/config:/opt/adguardhome/conf"
+    ports:
+{% for port in adguard_docker_ports %}
+      - {{ port }}
+{% endfor %}
+    networks:
+      - "{{ adguard_proxy_network }}"
