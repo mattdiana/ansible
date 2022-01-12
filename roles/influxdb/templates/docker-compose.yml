@@ -1,0 +1,15 @@
+# {{ ansible_managed | comment(decoration="# ") }}
+---
+version: "2.4"
+
+services:
+  influxdb:
+    image: influxdb:1.8.9
+    restart: unless-stopped
+    volumes:
+      - "{{ data_dir }}/config:/etc/influxdb"
+      - "{{ data_dir }}/data:/var/lib/influxdb"
+    ports:
+{% for port in influxdb_docker_ports %}
+      - {{ port }}
+{% endfor %}

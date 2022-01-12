@@ -1,0 +1,30 @@
+---
+- name: Create storage directory
+  become: yes
+  file:
+    path: "{{ data_dir }}/{{ item }}"
+    state: directory
+    mode: "0755"
+    owner: "{{ remote_user }}"
+    group: "{{ remote_user }}"
+  with_items:
+    - config
+    - data
+
+- name: Copy InfluxDB config file
+  template:
+    src: influxdb.conf
+    dest: "{{ data_dir }}/config/influxdb.conf"
+    mode: "0644"
+
+- name: Copy Docker Compose definition file
+  template:
+    src: docker-compose.yml
+    dest: "{{ data_dir }}/docker-compose.yml"
+    mode: "0644"
+
+- name: Start the stack with Docker Compose
+  community.docker.docker_compose:
+    project_src: "{{ data_dir }}"
+    pull: true
+    remove_orphans: yes
