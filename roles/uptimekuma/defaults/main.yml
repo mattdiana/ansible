@@ -1,0 +1,4 @@
+---
+data_dir: "{{ app_storage_dir }}/uptimekuma"
+
+uptimekuma_proxy_network: proxy

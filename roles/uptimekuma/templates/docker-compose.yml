@@ -1,0 +1,23 @@
+# {{ ansible_managed | comment(decoration="# ") }}
+---
+version: "2.4"
+
+networks:
+  "{{ uptimekuma_proxy_network }}":
+    external: true
+
+services:
+  uptimekuma:
+    image: louislam/uptime-kuma:1.11.3
+    restart: unless-stopped
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.uptimekuma.rule: "Host(`{{ uptimekuma_proxy_host }}`)"
+      traefik.http.routers.uptimekuma.entrypoints: "{{ uptimekuma_proxy_entrypoint }}"
+      traefik.http.services.uptimekuma.loadbalancer.server.port: 3001
+    environment:
+      - TZ={{ TZ }}
+    volumes:
+      - "{{ data_dir }}/data:/app/data"
+    networks:
+      - "{{ uptimekuma_proxy_network }}"
