@@ -1,0 +1,22 @@
+# {{ ansible_managed | comment(decoration="# ") }}
+---
+version: "2.4"
+
+networks:
+  "{{ nodered_proxy_network }}":
+    external: true
+
+services:
+  nodered:
+    image: nodered/node-red:2.0.5
+    restart: unless-stopped
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.nodered.rule: "Host(`{{ nodered_proxy_host }}`)"
+      traefik.http.routers.nodered.entrypoints: "{{ nodered_proxy_entrypoint }}"
+    environment:
+      - TZ={{ TZ }}
+    volumes:
+      - "{{ data_dir }}/data:/data"
+    networks:
+      - "{{ nodered_proxy_network }}"

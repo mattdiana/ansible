@@ -1,0 +1,4 @@
+---
+data_dir: "{{ app_storage_dir }}/nodered"
+
+nodered_proxy_network: proxy
