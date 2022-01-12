@@ -1,0 +1,9 @@
+---
+data_dir: "{{ app_storage_dir }}/unificontroller"
+
+unificontroller_proxy_network: proxy
+unificontroller_docker_ports:
+  - "1900:1900/udp" # Required for Make controller discoverable on L2 network option
+  - "3478:3478/udp" # Unifi STUN port
+  - "8080:8080" # Required for device communication
+  - "10001:10001/udp" # Required for AP discovery

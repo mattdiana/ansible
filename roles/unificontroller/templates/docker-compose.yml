@@ -1,0 +1,30 @@
+# {{ ansible_managed | comment(decoration="# ") }}
+---
+version: "2.4"
+
+networks:
+  "{{ unificontroller_proxy_network }}":
+    external: true
+
+services:
+  unificontroller:
+    image: linuxserver/unifi-controller:6.2.26-ls114
+    restart: unless-stopped
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.unificontroller.rule: "Host(`{{ unificontroller_proxy_host }}`)"
+      traefik.http.routers.unificontroller.entrypoints: "{{ unificontroller_proxy_entrypoint }}"
+      traefik.http.services.unificontroller.loadbalancer.server.port: 8443
+      traefik.http.services.unificontroller.loadbalancer.server.scheme: https
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ={{ TZ }}
+    volumes:
+      - "{{ data_dir }}/config:/config"
+    ports:
+{% for port in unificontroller_docker_ports %}
+      - {{ port }}
+{% endfor %}
+    networks:
+      - "{{ unificontroller_proxy_network }}"
