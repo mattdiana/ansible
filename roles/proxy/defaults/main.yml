@@ -1,11 +1,13 @@
 ---
 data_dir: "{{ app_storage_dir }}/proxy"
 
-proxy_traefik_access_log: true
+proxy_traefik_access_log: "true"
 proxy_traefik_command: []
 proxy_traefik_dashboard_entrypoint:
-proxy_traefik_dashboard_host: false
+proxy_traefik_dashboard_host: "false"
+proxy_traefik_dashboard_entrypoint: https
 proxy_traefik_dashboard_router_name: dashboard
+proxy_traefik_docker_host_ip: "{{ ansible_docker0.ipv4.address }}"
 proxy_traefik_docker_image: traefik:v2.5.6
 proxy_traefik_labels: {}
 proxy_traefik_network: proxy

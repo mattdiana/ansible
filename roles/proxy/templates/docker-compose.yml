@@ -44,15 +44,20 @@ services:
 {% endfor %}
     volumes:
       - "{{ data_dir }}/traefik:/letsencrypt"
+      - "/etc/localtime:/etc/localtime:ro"
     ports:
 {% for port in proxy_traefik_ports %}
       - {{ port }}
 {% endfor %}
+{% if proxy_traefik_environment %}
     environment:
 {% for env in proxy_traefik_environment %}
       - {{ env }}
 {% endfor %}
+{% endif %}
     dns: 1.1.1.1
+    extra_hosts:
+      - "host.docker.internal:{{ proxy_traefik_docker_host_ip }}"
     networks:
       - "{{ proxy_traefik_network }}"
       - "docker-socket-proxy"

@@ -1,0 +1,6 @@
+---
+- name: restart WireGuard
+  service:
+    name: wg-quick@wg0
+    state: restarted
+  listen: "restart wireguard"

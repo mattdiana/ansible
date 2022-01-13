@@ -1,0 +1,93 @@
+version: "2.4"
+
+networks:
+  "{{ netmaker_proxy_network }}":
+    external: true
+  default:
+    internal: true
+
+services:
+  netmaker:
+    image: gravitl/netmaker:v0.9.3
+    restart: unless-stopped
+    container_name: netmaker
+    volumes:
+      - /var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket
+      - /run/systemd/system:/run/systemd/system
+      - /etc/systemd/system:/etc/systemd/system
+      - /sys/fs/cgroup:/sys/fs/cgroup
+      - /usr/bin/wg:/usr/bin/wg
+      - "{{ data_dir }}/dnsconfig:/root/dnsconfig"
+      - "{{ data_dir }}/sqldata:/root/data"
+    cap_add:
+      - NET_ADMIN
+      - SYS_ADMIN
+    network_mode: host
+    privileged: true
+    environment:
+      SERVER_HOST: "{{ netmaker_ip_address }}"
+      SERVER_API_CONN_STRING: "api.{{ netmaker_base_domain }}:443"
+      SERVER_GRPC_CONN_STRING: "grpc.{{ netmaker_base_domain }}:443"
+      COREDNS_ADDR: "{{ netmaker_coredns_ip_address }}"
+      GRPC_SSL: "on"
+      DNS_MODE: "on"
+      SERVER_HTTP_HOST: "api.{{ netmaker_base_domain }}"
+      SERVER_GRPC_HOST: "grpc.{{ netmaker_base_domain }}"
+      API_PORT: "8081"
+      GRPC_PORT: "50051"
+      CLIENT_MODE: "on"
+      MASTER_KEY: "{{ netmaker_master_key }}"
+      SERVER_GRPC_WIREGUARD: "off"
+      CORS_ALLOWED_ORIGIN: "*"
+      DISPLAY_KEYS: "on"
+      DATABASE: "sqlite"
+      NODE_ID: "netmaker-server-1"
+      VERBOSITY: 0
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.netmaker-api.entrypoints: "{{ netmaker_proxy_endpoint }}"
+      traefik.http.routers.netmaker-api.rule: "Host(`api.{{ netmaker_base_domain }}`)"
+      traefik.http.routers.netmaker-api.service: netmaker-api
+      traefik.http.services.netmaker-api.loadbalancer.server.port: 8081
+      traefik.http.routers.netmaker-grpc.entrypoints: "{{ netmaker_proxy_endpoint }}"
+      traefik.http.routers.netmaker-grpc.rule: "Host(`grpc.{{ netmaker_base_domain }}`)"
+      traefik.http.routers.netmaker-grpc.service: netmaker-grpc
+      traefik.http.services.netmaker-grpc.loadbalancer.server.port: 50051
+      traefik.http.services.netmaker-grpc.loadbalancer.server.scheme: h2c
+
+  netmaker-ui:
+    image: gravitl/netmaker-ui:v0.9.3
+    container_name: netmaker-ui
+    restart: unless-stopped
+    depends_on:
+      - netmaker
+    links:
+      - "netmaker:api"
+    environment:
+      BACKEND_URL: "https://api.{{ netmaker_base_domain }}"
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.netmaker-ui-http.entrypoints: https
+      traefik.http.routers.netmaker-ui-http.rule: "Host(`dashboard.{{ netmaker_base_domain }}`)"
+      traefik.http.routers.netmaker-ui.entrypoints: "{{ netmaker_proxy_endpoint }}"
+      traefik.http.routers.netmaker-ui.rule: "Host(`dashboard.{{ netmaker_base_domain }}`)"
+      traefik.http.routers.netmaker-ui.service: netmaker-ui
+      traefik.http.services.netmaker-ui.loadbalancer.server.port: 80
+    networks:
+      - "default"
+      - "{{ netmaker_proxy_network }}"
+
+  coredns:
+    image: coredns/coredns
+    container_name: coredns
+    restart: unless-stopped
+    depends_on:
+      - netmaker
+    command: -conf /root/dnsconfig/Corefile
+    ports:
+      - "{{ netmaker_coredns_ip_address }}:53:53/udp"
+      - "{{ netmaker_coredns_ip_address }}:53:53/tcp"
+    volumes:
+      - "{{ data_dir }}/dnsconfig:/root/dnsconfig"
+    networks:
+      - "default"
