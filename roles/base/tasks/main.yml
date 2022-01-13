@@ -2,9 +2,9 @@
 - name: Upgrade the OS and packages
   become: true
   block:
-    - name: Upgrade the OS (apt-get dist-upgrade)
+    - name: Upgrade the OS
       apt:
-        upgrade: dist
+        upgrade: full
         update_cache: true
 
     - name: Enable unattended upgrades
@@ -22,9 +22,14 @@
       apt:
         name:
           - vim
-          - ufw
         state: latest
         cache_valid_time: 3600
+
+    - name: Remove ufw if installed
+      apt:
+        name:
+          - ufw
+        state: absent
 
     - name: Install Python dependencies for ansible
       apt:

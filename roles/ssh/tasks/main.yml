@@ -60,12 +60,6 @@
         path: /root/.ssh/authorized_keys
         state: absent
 
-    - name: Enable firewall and allow SSH access
-      community.general.ufw:
-        rule: allow
-        name: OpenSSH
-        state: enabled
-
     - name: Install fail2ban
       become: true
       import_role:
