@@ -1,0 +1,33 @@
+# {{ ansible_managed | comment(decoration="# ") }}
+---
+version: "2.4"
+
+networks:
+  "{{ omadacontroller_proxy_network }}":
+    external: true
+
+services:
+  omadacontroller:
+    image: mbentley/omada-controller:4.4
+    restart: unless-stopped
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.omadacontroller.rule: "Host(`{{ omadacontroller_proxy_host }}`)"
+      traefik.http.routers.omadacontroller.entrypoints: "{{ omadacontroller_proxy_entrypoint }}"
+      traefik.http.services.omadacontroller.loadbalancer.server.port: 443
+      traefik.http.services.omadacontroller.loadbalancer.server.scheme: https
+    environment:
+      - TZ={{ TZ }}
+      - MANAGE_HTTPS_PORT=443
+    volumes:
+      - "{{ data_dir }}/data:/opt/tplink/EAPController/data"
+      - "{{ data_dir }}/work:/opt/tplink/EAPController/work"
+      - "{{ data_dir }}/logs:/opt/tplink/EAPController/logs"
+    ports:
+{% for port in omadacontroller_docker_ports %}
+      - {{ port }}
+{% endfor %}
+    sysctls:
+      - net.ipv4.ip_unprivileged_port_start=0
+    networks:
+      - "{{ omadacontroller_proxy_network }}"

@@ -1,0 +1,13 @@
+---
+data_dir: "{{ app_storage_dir }}/omadacontroller"
+
+omadacontroller_proxy_network: proxy
+omadacontroller_docker_ports:
+  - "29810:29810"
+  - "29810:29810/udp"
+  - "29811:29811"
+  - "29811:29811/udp"
+  - "29812:29812"
+  - "29812:29812/udp"
+  - "29813:29813"
+  - "29813:29813/udp"
