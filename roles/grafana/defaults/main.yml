@@ -1,0 +1,6 @@
+---
+data_dir: "{{ app_storage_dir }}/grafana"
+
+grafana_proxy_network: proxy
+grafana_proxy_entrypoint: https
+grafana_proxy_host: "grafana.{{ domain }}"

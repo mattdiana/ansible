@@ -1,0 +1,30 @@
+---
+- name: Create storage directory
+  become: yes
+  file:
+    path: "{{ data_dir }}"
+    state: directory
+    mode: "0755"
+    owner: "{{ remote_user }}"
+    group: "{{ remote_user }}"
+
+- name: Create Grafana data directory
+  become: yes
+  file:
+    path: "{{ data_dir }}/data"
+    state: directory
+    mode: "0755"
+    owner: "472"
+    group: "0"
+
+- name: Copy Docker Compose definition file
+  template:
+    src: docker-compose.yml
+    dest: "{{ data_dir }}/docker-compose.yml"
+    mode: "0644"
+
+- name: Start the stack with Docker Compose
+  community.docker.docker_compose:
+    project_src: "{{ data_dir }}"
+    pull: true
+    remove_orphans: yes

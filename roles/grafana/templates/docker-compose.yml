@@ -1,0 +1,21 @@
+# {{ ansible_managed | comment(decoration="# ") }}
+---
+version: "2.4"
+
+networks:
+  "{{ grafana_proxy_network }}":
+    external: true
+
+services:
+  grafana:
+    image: grafana/grafana-oss:8.0.3
+    restart: unless-stopped
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.grafana.rule: "Host(`{{ grafana_proxy_host }}`)"
+      traefik.http.routers.grafana.entrypoints: "{{ grafana_proxy_entrypoint }}"
+      traefik.http.services.grafana.loadbalancer.server.port: 3000
+    volumes:
+      - "{{ data_dir }}/data:/var/lib/grafana"
+    networks:
+      - "{{ grafana_proxy_network }}"
