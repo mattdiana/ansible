@@ -1,0 +1,4 @@
+---
+data_dir: "{{ app_storage_dir }}/wikijs"
+
+wikijs_proxy_network: proxy
