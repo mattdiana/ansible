@@ -1,0 +1,72 @@
+# {{ ansible_managed | comment(decoration="# ") }}
+---
+version: "2.4"
+
+networks:
+  "{{ outline_proxy_network }}":
+    external: true
+  "default":
+    internal: true
+
+services:
+  outline:
+    image: outlinewiki/outline:0.61.1
+    restart: unless-stopped
+    depends_on:
+      - postgres
+      - redis
+    environment:
+      - SECRET_KEY={{ outline_secret_key }}
+      - UTILS_SECRET={{ outline_utils_secret }}
+      - DATABASE_URL=postgres://{{ outline_db_user }}:{{ outline_db_password }}@postgres:5432/outline
+      - PGSSLMODE=disable
+      - REDIS_URL=redis://redis:6379
+      - URL=https://{{ outline_proxy_host }}
+      - PORT=3000
+      - ALLOWED_DOMAINS={{ outline_allowed_domains }}
+      - AWS_ACCESS_KEY_ID={{ outline_s3_access_key }}
+      - AWS_SECRET_ACCESS_KEY={{ outline_s3_secret_key }}
+      - AWS_REGION={{ outline_s3_region }}
+      - AWS_S3_UPLOAD_BUCKET_URL={{ outline_s3_bucket_url }}
+      - AWS_S3_UPLOAD_BUCKET_NAME={{ outline_s3_bucket_name }}
+      - AWS_S3_UPLOAD_MAX_SIZE=26214400
+      - AWS_S3_FORCE_PATH_STYLE=true
+      - AWS_S3_ACL=private
+      - OIDC_CLIENT_ID={{ outline_oidc_client_id }}
+      - OIDC_CLIENT_SECRET={{ outline_oidc_client_secret }}
+      - OIDC_AUTH_URI={{ outline_oidc_auth_uri }}
+      - OIDC_TOKEN_URI={{ outline_oidc_token_uri }}
+      - OIDC_USERINFO_URI={{ outline_oidc_userinfo_uri}}
+      - OIDC_USERNAME_CLAIM={{ outline_oidc_username_claim }}
+      - OIDC_DISPLAY_NAME={{ outline_oidc_display_name }}
+      - OIDC_SCOPES={{ outline_oidc_scopes }}
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.outline.rule: "Host(`{{ outline_proxy_host }}`)"
+      traefik.http.routers.outline.entrypoints: "{{ outline_proxy_entrypoint }}"
+      traefik.http.services.outline.loadbalancer.server.port: 3000
+    volumes:
+      - "{{ data_dir }}/data:/data"
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    networks:
+      - "{{ outline_proxy_network }}"
+      - "default"
+
+  postgres:
+    image: postgres:14.1-alpine
+    restart: unless-stopped
+    volumes:
+      - "{{ data_dir }}/postgres:/var/lib/postgresql/data"
+    environment:
+      POSTGRES_DB: outline
+      POSTGRES_USER: "{{ outline_db_user }}"
+      POSTGRES_PASSWORD: "{{ outline_db_password }}"
+    networks:
+      - default
+
+  redis:
+    image: redis:6.2.6-alpine
+    restart: unless-stopped
+    networks:
+      - default

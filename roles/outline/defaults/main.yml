@@ -1,0 +1,12 @@
+---
+data_dir: "{{ app_storage_dir }}/outline"
+
+outline_proxy_network: proxy
+outline_proxy_entrypoint: vpn
+outline_proxy_host: "wiki.{{ domain }}"
+
+outline_db_user: outline
+
+outline_oidc_username_claim: name
+outline_oidc_scopes: "openid profile email"
+outline_allowed_domains: []
