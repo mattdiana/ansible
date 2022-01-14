@@ -68,9 +68,9 @@ services:
     labels:
       traefik.enable: "true"
       traefik.http.routers.netmaker-ui-http.entrypoints: https
-      traefik.http.routers.netmaker-ui-http.rule: "Host(`dashboard.{{ netmaker_base_domain }}`)"
+      traefik.http.routers.netmaker-ui-http.rule: "Host(`{{ netmaker_dashboard_host }}`)"
       traefik.http.routers.netmaker-ui.entrypoints: "{{ netmaker_proxy_endpoint }}"
-      traefik.http.routers.netmaker-ui.rule: "Host(`dashboard.{{ netmaker_base_domain }}`)"
+      traefik.http.routers.netmaker-ui.rule: "Host(`{{ netmaker_dashboard_host }}`)"
       traefik.http.routers.netmaker-ui.service: netmaker-ui
       traefik.http.services.netmaker-ui.loadbalancer.server.port: 80
     networks:

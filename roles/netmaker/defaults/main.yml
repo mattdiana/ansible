@@ -2,6 +2,7 @@
 data_dir: "{{ app_storage_dir }}/netmaker"
 
 netmaker_base_domain: "netmaker.{{ domain }}"
+netmaker_dashboard_host: "vpn.{{ domain }}"
 netmaker_ip_address: "{{ ansible_eth0.ipv4.address }}"
 netmaker_coredns_ip_address: "{{ netmaker_ip_address }}"
 netmaker_proxy_network: proxy
