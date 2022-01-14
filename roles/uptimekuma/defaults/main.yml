@@ -2,3 +2,5 @@
 data_dir: "{{ app_storage_dir }}/uptimekuma"
 
 uptimekuma_proxy_network: proxy
+uptimekuma_proxy_entrypoint: https
+uptimekuma_proxy_host: "uptime.{{ domain }}"
