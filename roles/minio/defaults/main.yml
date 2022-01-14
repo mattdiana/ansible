@@ -1,0 +1,13 @@
+---
+data_dir: "{{ app_storage_dir }}/minio"
+
+minio_proxy_network: proxy
+minio_proxy_entrypoint: vpn
+minio_proxy_host: "s3.{{ domain }}"
+
+minio_proxy_console_network: proxy
+minio_proxy_console_entrypoint: vpn
+minio_proxy_console_host: "minio.{{ domain }}"
+
+minio_root_user: root
+minio_root_password: password
