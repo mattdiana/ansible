@@ -1,0 +1,7 @@
+---
+data_dir: "{{ app_storage_dir }}/gitea"
+
+gitea_proxy_network: proxy
+gitea_proxy_entrypoint: https
+gitea_proxy_host: "git.{{ domain }}"
+gitea_db_username: gitea

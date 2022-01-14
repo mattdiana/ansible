@@ -1,0 +1,49 @@
+# {{ ansible_managed | comment(decoration="# ") }}
+---
+version: "2.4"
+
+networks:
+  "{{ gitea_proxy_network }}":
+    external: true
+  "default":
+    internal: true
+
+services:
+  gitea:
+    image: gitea/gitea:1.15.9
+    restart: unless-stopped
+    depends_on:
+      - mariadb
+    environment:
+      - USER_UID=1000
+      - USER_GID=1000
+      - GITEA__database__DB_TYPE=mysql
+      - GITEA__database__HOST=mariadb:3306
+      - GITEA__database__NAME=gitea
+      - GITEA__database__USER={{ gitea_db_username }}
+      - GITEA__database__PASSWD={{ gitea_db_password }}
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.gitea.rule: "Host(`{{ gitea_proxy_host }}`)"
+      traefik.http.routers.gitea.entrypoints: "{{ gitea_proxy_entrypoint }}"
+      traefik.http.services.gitea.loadbalancer.server.port: 3000
+    volumes:
+      - "{{ data_dir }}/data:/data"
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    networks:
+      - "{{ gitea_proxy_network }}"
+      - "default"
+
+  mariadb:
+    image: mariadb:10.7.1
+    restart: unless-stopped
+    environment:
+      - MYSQL_DATABASE=gitea
+      - MYSQL_USER={{ gitea_db_username }}
+      - MYSQL_PASSWORD={{ gitea_db_password }}
+      - MYSQL_RANDOM_ROOT_PASSWORD=true
+    volumes:
+      - "{{ data_dir }}/mariadb:/var/lib/mysql"
+    networks:
+      - "default"
