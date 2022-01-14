@@ -10,7 +10,7 @@ networks:
 
 services:
   gitea:
-    image: gitea/gitea:1.15.9
+    image: gitea/gitea:1.15.10
     restart: unless-stopped
     depends_on:
       - mariadb
