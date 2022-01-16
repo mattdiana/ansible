@@ -1,0 +1,42 @@
+# {{ ansible_managed | comment(decoration="# ") }}
+---
+version: "2.4"
+
+networks:
+  "{{ plex_proxy_network }}":
+    external: true
+
+services:
+  plex:
+    image: linuxserver/plex:1.25.3
+    restart: unless-stopped
+    hostname: "{{ plex_proxy_host }}"
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.plex.rule: "Host(`{{ plex_proxy_host }}`)"
+      traefik.http.routers.plex.entrypoints: "{{ plex_proxy_entrypoint }}"
+      traefik.http.services.plex.loadbalancer.server.port: 32400
+    environment:
+      PGID: 1000
+      PUID: 1000
+      TZ: "{{ TZ }}"
+      VERSION: docker
+    volumes:
+      - "{{ data_dir }}/transcode:/data/transcode"
+      - "{{ data_dir }}/config:/config"
+      - "{{ plex_media_dir }}/movies:/data/movies"
+      - "{{ plex_media_dir }}/music:/data/music"
+      - "{{ plex_media_dir }}/tv:/data/tv"
+    ports:
+      - "32400:32400"
+      - "1900:1900/udp"
+      - "3005:3005"
+      - "5353:5353/udp"
+      - "8324:8324"
+      - "32410:32410/udp"
+      - "32412:32412/udp"
+      - "32413:32413/udp"
+      - "32414:32414/udp"
+      - "32469:32469"
+    networks:
+      - "{{ plex_proxy_network }}"

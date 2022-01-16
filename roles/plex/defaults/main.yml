@@ -1,0 +1,7 @@
+---
+data_dir: "{{ app_storage_dir }}/plex"
+
+plex_proxy_network: proxy
+plex_proxy_entrypoint: https
+plex_proxy_host: "plex.{{ domain }}"
+plex_media_dir: /media
