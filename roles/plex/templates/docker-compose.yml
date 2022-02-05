@@ -8,7 +8,7 @@ networks:
 
 services:
   plex:
-    image: linuxserver/plex:1.25.3
+    image: linuxserver/plex:1.25.4
     restart: unless-stopped
     hostname: "{{ plex_proxy_host }}"
     labels:
