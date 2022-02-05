@@ -56,7 +56,7 @@ services:
       traefik.http.services.netmaker-grpc.loadbalancer.server.scheme: h2c
 
   netmaker-ui:
-    image: gravitl/netmaker-ui:v0.9.3
+    image: gravitl/netmaker-ui:v0.9.4
     container_name: netmaker-ui
     restart: unless-stopped
     depends_on:
