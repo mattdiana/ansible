@@ -8,7 +8,7 @@ networks:
 
 services:
   nodered:
-    image: nodered/node-red:2.0.5
+    image: nodered/node-red:2.2.0
     restart: unless-stopped
     labels:
       traefik.enable: "true"
