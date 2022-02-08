@@ -10,7 +10,7 @@ networks:
 
 services:
   monica:
-    image: monica:3.6.1
+    image: monica:3.7.0
     restart: unless-stopped
     depends_on:
       - mysql
