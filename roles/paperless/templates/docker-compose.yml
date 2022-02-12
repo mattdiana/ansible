@@ -16,7 +16,7 @@ services:
       - default
 
   postgres:
-    image: postgres:14.1-alpine
+    image: postgres:14.2-alpine
     restart: unless-stopped
     volumes:
       - "{{ data_dir }}/postgres:/var/lib/postgresql/data"
