@@ -74,7 +74,7 @@ services:
       - default
 
   tika:
-    image: apache/tika:2.2.1
+    image: apache/tika:2.3.0
     restart: unless-stopped
     networks:
       - default
