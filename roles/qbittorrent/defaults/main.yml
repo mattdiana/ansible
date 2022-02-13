@@ -1,0 +1,15 @@
+---
+data_dir: "{{ app_storage_dir }}/qbittorrent"
+
+qbittorrent_proxy_network: proxy
+qbittorrent_proxy_entrypoint: https
+qbittorrent_proxy_host: "qbittorrent.{{ domain }}"
+
+qbitorrent_tz: "{{ TZ }}"
+
+qbitorrent_wireguard_dot_providers: quad9
+
+# qbitorrent_wireguard_city: New York NY
+# qbitorrent_wireguard_address: USER_DEFINED
+
+# secret_qbitorrent_wireguard_private_key: USER_DEFINED

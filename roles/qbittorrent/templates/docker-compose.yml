@@ -1,0 +1,43 @@
+# {{ ansible_managed | comment(decoration="# ") }}
+---
+version: "2.4"
+
+networks:
+  "{{ qbittorrent_proxy_network }}":
+    external: true
+
+services:
+
+  gluetun:
+    image: qmcgaw/gluetun:v3.27.0
+    restart: unless-stopped
+    cap_add:
+      - NET_ADMIN
+    environment:
+      - VPN_TYPE=wireguard
+      - VPNSP={{ qbitorrent_wireguard_provider }}
+      - WIREGUARD_PRIVATE_KEY={{ secret_qbitorrent_wireguard_private_key }}
+      - WIREGUARD_ADDRESS={{ qbitorrent_wireguard_address }}
+      - CITY={{ qbitorrent_wireguard_city }}
+      - DOT_PROVIDERS={{ qbitorrent_wireguard_dot_providers }}
+      - TZ={{ qbitorrent_tz }}
+    networks:
+      - "{{ qbittorrent_proxy_network }}"
+
+  qbittorrent:
+    image: lscr.io/linuxserver/qbittorrent
+    restart: unless-stopped
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.qbittorrent.rule: "Host(`{{ qbittorrent_proxy_host }}`)"
+      traefik.http.routers.qbittorrent.entrypoints: "{{ qbittorrent_proxy_entrypoint }}"
+      traefik.http.services.qbittorrent.loadbalancer.server.port: 8080
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ={{ qbitorrent_tz }}
+      - WEBUI_PORT=8080
+    volumes:
+      - "{{ data_dir }}/config:/config"
+      - "{{ data_dir }}/downloads:/downloads"
+    network_mode: "service:gluetun"
