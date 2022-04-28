@@ -10,7 +10,7 @@ networks:
 
 services:
   outline:
-    image: outlinewiki/outline:0.61.1
+    image: outlinewiki/outline:0.63.0
     restart: unless-stopped
     depends_on:
       - postgres
