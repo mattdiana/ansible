@@ -8,7 +8,7 @@ networks:
 
 services:
   grafana:
-    image: grafana/grafana-oss:8.3.6
+    image: grafana/grafana-oss:8.5.27
     restart: unless-stopped
     labels:
       traefik.enable: "true"
