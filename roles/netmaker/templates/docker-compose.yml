@@ -8,7 +8,7 @@ networks:
 
 services:
   netmaker:
-    image: gravitl/netmaker:v0.9.4
+    image: gravitl/netmaker:v0.25.0
     restart: unless-stopped
     container_name: netmaker
     volumes:
