@@ -9,7 +9,7 @@ networks:
 services:
 
   gluetun:
-    image: qmcgaw/gluetun:v3.27.0
+    image: qmcgaw/gluetun:v3.39.1
     restart: unless-stopped
     cap_add:
       - NET_ADMIN
