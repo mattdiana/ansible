@@ -8,7 +8,7 @@ networks:
 
 services:
   uptimekuma:
-    image: louislam/uptime-kuma:1.11.4
+    image: louislam/uptime-kuma:1.23.15
     restart: unless-stopped
     labels:
       traefik.enable: "true"
