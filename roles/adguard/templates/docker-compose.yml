@@ -8,7 +8,7 @@ networks:
 
 services:
   adguard:
-    image: adguard/adguardhome:v0.107.2
+    image: adguard/adguardhome:v0.107.79
     restart: unless-stopped
     labels:
       traefik.enable: "true"
